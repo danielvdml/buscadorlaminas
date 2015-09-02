@@ -1,6 +1,6 @@
 
 
-{{Laminas}}
+
 
 <div class="container"  style="padding-top:60px;" ng-init="getLaminas()" >
 	<div class="row">
