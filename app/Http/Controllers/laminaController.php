@@ -8,6 +8,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use DB;
 use App\model\lamina;
+use App\model\venta;
 use Validator;
 use route;
 use Auth;
@@ -21,7 +22,24 @@ class laminaController extends Controller
     {
         return view('ConsultaLaminas');
     }
+    public function getLaminas_1($keyword){
+        // $list=explode(" ", $keyword);
+        $resultado=[];
+        $keywordHTML="<u><b>".$keyword."<u><b>";
+        // foreach ($list as $valor) {
+        //     $valorHTML="<u><b>".$valor."</b></u>";
+        //     $resultado=array_merge($resultado,DB::select('
+        //         select id,replace(lower(titulo),?,?) as titulo,editorial,tema,replace(lower(descripcion),?,?) as descripcion, cantidad,numero,users_id from laminas where titulo like ? union 
+        //         select id,replace(lower(titulo),?,?) as titulo,editorial,tema,replace(lower(descripcion),?,?) as descripcion, cantidad,numero,users_id from laminas where titulo like ? union 
+        //         select id,replace(lower(titulo),?,?) as titulo,editorial,tema,replace(lower(descripcion),?,?) as descripcion, cantidad,numero,users_id  from laminas where descripcion like ? ',
+        //         array($keyword,$keywordHTML,$keyword,$keywordHTML,"%".$keyword."%",$valor,$valorHTML,$valor,$valorHTML,"%".$valor."%",$valor,$valorHTML,$valor,$valorHTML,$valorHTML)));
+        //     $resultado=array_merge($resultado,DB::select(,array()));
+        // }
+        // $resultado=array_merge($resultado,DB::select("select id,replace(lower(titulo),?,?) as titulo,editorial,tema,replace(lower(descripcion),?,?) as descripcion, cantidad,numero from laminas where MATCH(titulo, descripcion) AGAINST (?) and users_id=?",array($keyword,$keywordHTML,$keyword,$keywordHTML,$keyword,Auth::user()->id)));
+        $resultado=array_merge($resultado,DB::select("select *from laminas where MATCH(titulo, descripcion) AGAINST (?) and users_id=?",array($keyword,Auth::user()->id)));
+        return  $resultado;
 
+    }
     public function getLaminas(){
         // return lamina::all();
         return DB::table('laminas')
@@ -115,12 +133,18 @@ class laminaController extends Controller
         $id=$request->input('id');
         $cantidad=$request->input('cantidad');
         $lamina=lamina::find($id);
-        if($lamina["cantidad"]>$cantidad){
+        if($lamina["cantidad"]>=$cantidad){
             $lamina["cantidad"]=$lamina["cantidad"]-$cantidad;
             $lamina->save();
-            return "Venta Exitosa";
+            $venta=new venta;
+            $venta["cantidad"]=$cantidad;
+            $venta["fecha"]=date("Y-m-d H:i:s"); 
+            $venta["users_id"]=Auth::user()->id;
+            $venta["laminas_id"]=$id;
+            $venta->save();
+            return array("Message"=>"Venta Exitosa","cantidad"=>$lamina["cantidad"]);
         }else{
-            return "No hay laminas Suficientes";
+            return array("Message"=>"Cantidad de Laminas Insuficiente","cantidad"=>$lamina["cantidad"]);
         }
     }
 

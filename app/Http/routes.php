@@ -27,6 +27,7 @@ $router->get('/prueba',function(){
 });
 $router->get('/',['uses'=>'laminaController@index','as'=>'index']);
 $router->get('/getLaminas',['uses'=>'laminaController@getLaminas','as'=>'getLaminas']);
+$router->get('/getLaminas/{keyword}',['uses'=>'laminaController@getLaminas_1','as'=>'getLaminas_1']);
 $router->get('/getEditoriales',['uses'=>'laminaController@getEditoriales','as'=>'getEditoriales']);
 $router->post('/updateLamina',['uses'=>'laminaController@updateLamina','as'=>'updateLamina']);
 $router->post('/createLamina',['uses'=>'laminaController@createLamina','as'=>'createLamina']);
